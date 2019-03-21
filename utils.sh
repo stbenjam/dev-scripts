@@ -18,21 +18,16 @@ function create_cluster() {
     local assets_dir
 
     assets_dir="$1"
+
     cp ${assets_dir}/install-config.yaml{,.tmp}
-
-    $GOPATH/src/github.com/openshift-metalkube/kni-installer/bin/kni-install --dir "${assets_dir}" --log-level=debug create ignition-configs
-    cp ${assets_dir}/master.ign{,.tmp}
-
-    cp ${assets_dir}/install-config.yaml{.tmp,}
     $GOPATH/src/github.com/openshift-metalkube/kni-installer/bin/kni-install --dir "${assets_dir}" --log-level=debug create manifests
 
     generate_assets
+    mkdir -p ${assets_dir}/openshift
     cp -rf assets/generated/*.yaml ${assets_dir}/openshift
 
     cp ${assets_dir}/install-config.yaml{.tmp,}
-    $GOPATH/src/github.com/openshift-metalkube/kni-installer/bin/kni-install --dir "${assets_dir}" create cluster
-    cp ${assets_dir}/master.ign{.tmp,}
-
+    $GOPATH/src/github.com/openshift-metalkube/kni-installer/bin/kni-install --dir "${assets_dir}" --log-level=debug create cluster || true
 }
 
 function wait_for_json() {

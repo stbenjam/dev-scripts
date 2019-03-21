@@ -19,8 +19,7 @@ build:
 	./05_build_ocp_installer.sh
 
 ocp_run:
-	./06_deploy_bootstrap_vm.sh
-	./07_deploy_masters.sh
+	./06_create_cluster.sh
 
 deploy_bmo:
 	./08_deploy_bmo.sh

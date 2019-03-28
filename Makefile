@@ -24,10 +24,7 @@ ocp_run:
 deploy_bmo:
 	./08_deploy_bmo.sh
 
-clean: masters_cleanup ocp_cleanup host_cleanup
-
-masters_cleanup:
-	./masters_cleanup.sh
+clean: ocp_cleanup host_cleanup
 
 ocp_cleanup:
 	./ocp_cleanup.sh

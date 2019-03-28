@@ -27,7 +27,7 @@ function create_cluster() {
     cp -rf assets/generated/*.yaml ${assets_dir}/openshift
 
     cp ${assets_dir}/install-config.yaml{.tmp,}
-    $GOPATH/src/github.com/openshift-metalkube/kni-installer/bin/kni-install --dir "${assets_dir}" --log-level=debug create cluster || true
+    $GOPATH/src/github.com/openshift-metalkube/kni-installer/bin/kni-install --dir "${assets_dir}" --log-level=debug create cluster
 }
 
 function wait_for_json() {
@@ -84,116 +84,11 @@ function master_node_val() {
     jq -r ".nodes[${n}].${val}" $MASTER_NODES_FILE
 }
 
-function master_node_to_tf() {
-    local master_idx
-    local image_source
-    local image_checksum
-    local root_gb
-    local root_device
-
-    master_idx="$1"
-    image_source="$2"
-    image_checksum="$3"
-    root_gb="$4"
-    root_device="$5"
-
-    driver=$(master_node_val ${master_idx} "driver")
-    if [ $driver == "ipmi" ] ; then
-        driver=ipmi
-        driver_prefix=ipmi
-        driver_interface=ipmitool
-    elif [ $driver == "idrac" ] ; then
-        driver=idrac
-        driver_prefix=drac
-        driver_interface=idrac
-    fi
-
-    name=$(master_node_val ${master_idx} "name")
-    mac=$(master_node_val ${master_idx} "ports[0].address")
-    local_gb=$(master_node_val ${master_idx} "properties.local_gb")
-    cpu_arch=$(master_node_val ${master_idx} "properties.cpu_arch")
-
-    port=$(master_node_val ${master_idx} "driver_info.${driver_prefix}_port // \"\"")
-    if [ -n "$port" ]; then
-        port="\"${driver_prefix}_port\"=      \"${port}\""
-    fi
-    username=$(master_node_val ${master_idx} "driver_info.${driver_prefix}_username")
-    password=$(master_node_val ${master_idx} "driver_info.${driver_prefix}_password")
-    address=$(master_node_val ${master_idx} "driver_info.${driver_prefix}_address")
-
-    deploy_kernel=$(master_node_val ${master_idx} "driver_info.deploy_kernel")
-    deploy_ramdisk=$(master_node_val ${master_idx} "driver_info.deploy_ramdisk")
-
-    cat <<EOF
-
-resource "ironic_node_v1" "openshift-master-${master_idx}" {
-  name = "$name"
-
-  target_provision_state = "active"
-  user_data = "\${file("master.ign")}"
-
-  ports = [
-    {
-      "address" = "${mac}"
-      "pxe_enabled" = "true"
-    }
-  ]
-
-  properties {
-    "local_gb" = "${local_gb}"
-    "cpu_arch" =  "${cpu_arch}"
-  }
-
-  root_device = {
-    "name" = "${ROOT_DISK}"
-  }
-
-  instance_info = {
-    "image_source" = "${image_source}"
-    "image_checksum" = "${image_checksum}"
-    "root_gb" = "${root_gb}"
-  }
-
-  driver = "${driver}"
-  driver_info {
-    ${port}
-    "${driver_prefix}_username"=  "${username}"
-    "${driver_prefix}_password"=  "${password}"
-    "${driver_prefix}_address"=   "${address}"
-    "deploy_kernel"=  "${deploy_kernel}"
-    "deploy_ramdisk"= "${deploy_ramdisk}"
-  }
-
-  management_interface = "${driver_interface}"
-  power_interface = "${driver_interface}"
-  vendor_interface = "no-vendor"
-
-}
-EOF
-}
-
 function collect_info_on_failure() {
     $SSH -o ConnectionAttempts=500 core@$IP sudo journalctl -b -u bootkube
     oc get clusterversion/version
     oc get clusteroperators
     oc get pods --all-namespaces | grep -v Running | grep -v Completed
-}
-
-function wait_for_bootstrap_event() {
-  local events
-  local counter
-  pause=10
-  max_attempts=60 # 60*10 = at least 10 mins of attempts
-
-  for i in $(seq 0 "$max_attempts"); do
-    events=$(oc --request-timeout=5s get events -n kube-system --no-headers -o wide || echo 'Error retrieving events')
-    echo "$events"
-    if [[ ! $events =~ "bootstrap-complete" ]]; then 
-      sleep "$pause";
-    else
-      break
-    fi
-  done
 }
 
 function patch_ep_host_etcd() {

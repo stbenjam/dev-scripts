@@ -84,6 +84,66 @@ function master_node_val() {
     jq -r ".nodes[${n}].${val}" $MASTER_NODES_FILE
 }
 
+function master_node_to_installer() {
+    local master_idx
+
+    master_idx="$1"
+
+    username=$(master_node_val ${master_idx} "driver_info.${driver_prefix}_username")
+    password=$(master_node_val ${master_idx} "driver_info.${driver_prefix}_password")
+    address=$(master_node_val ${master_idx} "driver_info.${driver_prefix}_address")
+    port=$(master_node_val ${master_idx} "driver_info.${driver_prefix}_port // \"\"")
+    driver=$(master_node_val ${master_idx} "driver")
+
+    if [ $driver == "ipmi" ] ; then
+		    if [ -n "$port" ]; then
+					bmc_address="ipmi://${address}:${port}/"
+				else
+					bmc_address="ipmi://${address}/"
+		    fi
+
+        driver=ipmi
+        driver_prefix=ipmi
+        driver_interface=ipmitool
+    elif [ $driver == "idrac" ] ; then
+		    if [ -n "$port" ]; then
+					bmc_address="idrac://${address}:${port}/"
+				else
+					bmc_address="idrac://${address}/"
+		    fi
+
+        driver=idrac
+        driver_prefix=drac
+        driver_interface=idrac
+    fi
+
+    name=$(master_node_val ${master_idx} "name")
+    mac=$(master_node_val ${master_idx} "ports[0].address")
+    local_gb=$(master_node_val ${master_idx} "properties.local_gb")
+    cpu_arch=$(master_node_val ${master_idx} "properties.cpu_arch")
+
+
+    deploy_kernel=$(master_node_val ${master_idx} "driver_info.deploy_kernel")
+    deploy_ramdisk=$(master_node_val ${master_idx} "driver_info.deploy_ramdisk")
+
+    cat <<EOF
+    master_${master_idx}:
+      local_gb: "${local_gb}"
+      cpu_arch: "${cpu_arch}"
+      root_device_name: "${ROOT_DISK}"
+      port_address: "${mac}"
+      pxe_enabled: "true"
+      bmc_address: "${bmc_address}"
+      bmc_username: "${username}"
+      bmc_password: "${password}"
+			deploy_kernel: "${deploy_kernel}"
+			deploy_ramdisk: "${deploy_ramdisk}"
+      management_interface: "${driver_interface}"
+      power_interface: "${driver_interface}"
+EOF
+}
+
+
 function collect_info_on_failure() {
     $SSH -o ConnectionAttempts=500 core@$IP sudo journalctl -b -u bootkube
     oc get clusterversion/version

@@ -91,6 +91,62 @@ function collect_info_on_failure() {
     oc get pods --all-namespaces | grep -v Running | grep -v Completed
 }
 
+
+function master_node_to_install_config() {
+    local master_idx
+    master_idx="$1"
+
+    driver=$(master_node_val ${master_idx} "driver")
+    if [ $driver == "ipmi" ] ; then
+        driver=ipmi
+        driver_prefix=ipmi
+        driver_interface=ipmitool
+    elif [ $driver == "idrac" ] ; then
+        driver=idrac
+        driver_prefix=drac
+        driver_interface=idrac
+    fi
+
+    name=$(master_node_val ${master_idx} "name")
+    mac=$(master_node_val ${master_idx} "ports[0].address")
+    local_gb=$(master_node_val ${master_idx} "properties.local_gb")
+    cpu_arch=$(master_node_val ${master_idx} "properties.cpu_arch")
+
+    port=$(master_node_val ${master_idx} "driver_info.${driver_prefix}_port // \"\"")
+    if [ -n "$port" ]; then
+        port="\"${driver_prefix}_port\"=      \"${port}\""
+    fi
+    username=$(master_node_val ${master_idx} "driver_info.${driver_prefix}_username")
+    password=$(master_node_val ${master_idx} "driver_info.${driver_prefix}_password")
+    address=$(master_node_val ${master_idx} "driver_info.${driver_prefix}_address")
+
+    deploy_kernel=$(master_node_val ${master_idx} "driver_info.deploy_kernel")
+    deploy_ramdisk=$(master_node_val ${master_idx} "driver_info.deploy_ramdisk")
+
+    cat <<EOF
+    master-$master_idx:
+      name: $name
+      port_address: "${mac}"
+      root_gb: "${root_gb}"
+    properties-$master_idx:
+      local_gb: "${local_gb}"
+      cpu_arch: "${cpu_arch}"
+    root_device-$master_idx:
+      name: "${ROOT_DISK}"
+    driver_info-$master_idx:
+      ${port}
+      {driver_prefix}_username: "${username}"
+      ${driver_prefix}_password: "${password}"
+      ${driver_prefix}_address: "${address}"
+      deploy_kernel:  "${deploy_kernel}"
+      deploy_ramdisk: "${deploy_ramdisk}"
+      management_interface: "${driver_interface}"
+      power_interface: "${driver_interface}"
+      vendor_interface: "no-vendor"
+EOF
+}
+
+
 function patch_ep_host_etcd() {
     local host_etcd_ep
     local hostnames

@@ -114,7 +114,8 @@ function master_node_to_install_config() {
 
     port=$(master_node_val ${master_idx} "driver_info.${driver_prefix}_port // \"\"")
     if [ -n "$port" ]; then
-        port="\"${driver_prefix}_port\"=      \"${port}\""
+	port_prefix="${driver_prefix}_port: \"${port}\""
+        port_newline=$'\n        '
     fi
     username=$(master_node_val ${master_idx} "driver_info.${driver_prefix}_username")
     password=$(master_node_val ${master_idx} "driver_info.${driver_prefix}_password")
@@ -124,25 +125,23 @@ function master_node_to_install_config() {
     deploy_ramdisk=$(master_node_val ${master_idx} "driver_info.deploy_ramdisk")
 
     cat <<EOF
-    master-$master_idx:
-      name: $name
-      port_address: "${mac}"
-      root_gb: "${root_gb}"
-    properties-$master_idx:
-      local_gb: "${local_gb}"
-      cpu_arch: "${cpu_arch}"
-    root_device-$master_idx:
-      name: "${ROOT_DISK}"
-    driver_info-$master_idx:
-      ${port}
-      {driver_prefix}_username: "${username}"
-      ${driver_prefix}_password: "${password}"
-      ${driver_prefix}_address: "${address}"
-      deploy_kernel:  "${deploy_kernel}"
-      deploy_ramdisk: "${deploy_ramdisk}"
-      management_interface: "${driver_interface}"
-      power_interface: "${driver_interface}"
-      vendor_interface: "no-vendor"
+      master_$master_idx:
+        name: $name
+        port_address: "${mac}"
+        management_interface: "${driver_interface}"
+        power_interface: "${driver_interface}"
+        vendor_interface: "no-vendor"
+      properties_$master_idx:
+        local_gb: "${local_gb}"
+        cpu_arch: "${cpu_arch}"
+      root_device_$master_idx:
+        name: "${ROOT_DISK}"
+      driver_info_$master_idx:
+        ${port_prefix}${port_newline}${driver_prefix}_username: "${username}"
+        ${driver_prefix}_password: "${password}"
+        ${driver_prefix}_address: "${address}"
+        deploy_kernel:  "${deploy_kernel}"
+        deploy_ramdisk: "${deploy_ramdisk}"
 EOF
 }
 

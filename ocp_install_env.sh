@@ -25,7 +25,9 @@ apiVersion: v1beta3
 baseDomain: ${BASE_DOMAIN}
 metadata:
   name: ${CLUSTER_NAME}
+platform:
   baremetal:
+    nodes:
 $(master_node_to_install_config 0)
 $(master_node_to_install_config 1)
 $(master_node_to_install_config 2)
@@ -33,7 +35,6 @@ $(master_node_to_install_config 2)
       image_source: "http://172.22.0.1/images/$RHCOS_IMAGE_FILENAME_LATEST"
       image_checksum: $(curl http://172.22.0.1/images/$RHCOS_IMAGE_FILENAME_LATEST.md5sum)
       root_gb: 25
-      root_disk: ${ROOT_DISK}
 pullSecret: |
   ${PULL_SECRET}
 sshKey: |

@@ -8,10 +8,13 @@ source utils.sh
 
 if [ ! -d ocp ]; then
     mkdir -p ocp
+
+    # Create a master_nodes.json file
+    jq '.nodes[0:3] | {nodes: .}' "${NODES_FILE}" | tee "${MASTER_NODES_FILE}"
+
+    # Create install config for openshift-installer
     generate_ocp_install_config ocp
 fi
-
-exit
 
 # NOTE: This is equivalent to the external API DNS record pointing the API to the API VIP
 if [ "$MANAGE_BR_BRIDGE" == "y" ] ; then

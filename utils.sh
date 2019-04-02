@@ -128,6 +128,7 @@ function master_node_to_install_config() {
       master_$master_idx:
         name: $name
         port_address: "${mac}"
+        driver: "${driver}"
         management_interface: "${driver_interface}"
         power_interface: "${driver_interface}"
         vendor_interface: "no-vendor"

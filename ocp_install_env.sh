@@ -18,21 +18,24 @@ function generate_ocp_install_config() {
 
     outdir="$1"
 
+    master_count=$(jq '[.nodes | .[] | select(.name | contains("master"))] | length' $MASTER_NODES_FILE)
+
     cat > "${outdir}/install-config.yaml" << EOF
 apiVersion: v1beta3
 baseDomain: ${BASE_DOMAIN}
+controlPlane:
+  name: master
+  replicas: $master_count
 metadata:
   name: ${CLUSTER_NAME}
 platform:
   baremetal:
-    nodes:
-$(master_node_to_install_config 0)
-$(master_node_to_install_config 1)
-$(master_node_to_install_config 2)
     master_configuration:
       image_source: "http://172.22.0.1/images/$RHCOS_IMAGE_FILENAME_LATEST"
       image_checksum: $(curl http://172.22.0.1/images/$RHCOS_IMAGE_FILENAME_LATEST.md5sum)
       root_gb: 25
+    nodes:
+$(for i in `seq 0 $((master_count-1))`; do master_node_to_install_config $i; done)
 pullSecret: |
   ${PULL_SECRET}
 sshKey: |

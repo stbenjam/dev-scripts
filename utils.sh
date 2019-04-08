@@ -20,7 +20,7 @@ function create_cluster() {
     assets_dir="$1"
 
     # Enable terraform debug logging
-    export TF_LOG=TRACE
+    export TF_LOG=DEBUG
 
     cp ${assets_dir}/install-config.yaml{,.tmp}
     $GOPATH/src/github.com/openshift-metalkube/kni-installer/bin/kni-install --dir "${assets_dir}" --log-level=debug create manifests

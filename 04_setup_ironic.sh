@@ -4,9 +4,10 @@ set -ex
 
 source logging.sh
 source common.sh
+source images.sh
 
 # Get the various images
-source get_images.sh
+download_images
 
 # Either pull or build the ironic images
 # To build the IRONIC image set
@@ -40,8 +41,8 @@ if [ ! -e "${RHCOS_IMAGE_FILENAME_COMPRESSED}.md5sum" -o \
     md5sum "$RHCOS_IMAGE_FILENAME_COMPRESSED" | cut -f 1 -d " " > "$RHCOS_IMAGE_FILENAME_COMPRESSED.md5sum"
 fi
 
-ln -sf "$RHCOS_IMAGE_FILENAME_COMPRESSED" "$RHCOS_IMAGE_FILENAME_LATEST"
-ln -sf "$RHCOS_IMAGE_FILENAME_COMPRESSED.md5sum" "$RHCOS_IMAGE_FILENAME_LATEST.md5sum"
+ln -sf "$RHCOS_IMAGE_FILENAME_COMPRESSED" "$RHCOS_IMAGE_FILENAME"
+ln -sf "$RHCOS_IMAGE_FILENAME_COMPRESSED.md5sum" "$RHCOS_IMAGE_FILENAME.md5sum"
 popd
 
 for name in ironic ironic-inspector dnsmasq httpd mariadb; do

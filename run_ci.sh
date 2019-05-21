@@ -35,6 +35,7 @@ sudo yum install -y jq golang
 sudo yum remove -y epel-release
 
 source common.sh
+source utils.sh
 
 if [ -n "$PS1" ]; then
     echo "This script is for running dev-script in our CI env, it is tailored to a"
@@ -106,6 +107,7 @@ done
 
 # Run dev-scripts
 set -o pipefail
+export INSTALL_FROM_GIT=true
 timeout -s 9 85m make |& ts "%b %d %H:%M:%S | " |& sed -e 's/.*auths.*/*** PULL_SECRET ***/g'
 
 source common.sh

@@ -157,7 +157,7 @@ fi
 # Switch NetworkManager to internal DNS
 if [ "$MANAGE_BR_BRIDGE" == "y" ] ; then
   sudo mkdir -p /etc/NetworkManager/conf.d/
-  sudo crudini --set /etc/NetworkManager/conf.d/dnsmasq.conf main dns dnsmasq
+  sudo $(which crudini) --set /etc/NetworkManager/conf.d/dnsmasq.conf main dns dnsmasq
   if [ "$ADDN_DNS" ] ; then
     echo "server=$ADDN_DNS" | sudo tee /etc/NetworkManager/dnsmasq.d/upstream.conf
   fi

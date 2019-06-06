@@ -76,6 +76,7 @@ if [ "${RHEL8}" = "y" ] ; then
     sudo yum -y install \
       ansible \
       python3-netaddr \
+      redhat-lsb-core \
       bind-utils \
       jq \
       libvirt \

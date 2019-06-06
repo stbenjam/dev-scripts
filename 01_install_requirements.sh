@@ -97,6 +97,9 @@ if [ "${RHEL8}" = "y" ] ; then
     pushd virtualbmc
     git pull -r
     sudo pip3 install .
+    curl 'https://review.rdoproject.org/r/gitweb?p=openstack/virtualbmc-distgit.git;a=blob_plain;f=virtualbmc.service;hb=HEAD' > virtualbmc.service
+    sudo mv virtualbmc.service /etc/systemd/system/.
+    sudo systemctl daemon-reload
     popd ; popd
 
     # TODO(russellb) - Install an rpm for this once OSP for RHEL8 is out

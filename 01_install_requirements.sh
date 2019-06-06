@@ -85,7 +85,8 @@ if [ "${RHEL8}" = "y" ] ; then
       podman \
       qemu-kvm \
       virt-install \
-      unzip
+      unzip \
+      network-scripts
 
     sudo pip3 install yq
 

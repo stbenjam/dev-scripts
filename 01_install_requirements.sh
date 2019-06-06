@@ -75,6 +75,7 @@ if [ "${RHEL8}" = "y" ] ; then
     # make sure additional requirments are installed
     sudo yum -y install \
       ansible \
+      python3-netaddr \
       bind-utils \
       jq \
       libvirt \

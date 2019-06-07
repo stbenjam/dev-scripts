@@ -86,7 +86,8 @@ if [ "${RHEL8}" = "y" ] ; then
       qemu-kvm \
       virt-install \
       unzip \
-      network-scripts
+      network-scripts \
+      ipmitool
 
     sudo pip3 install yq
 

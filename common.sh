@@ -90,6 +90,10 @@ if [[ ${VER} -ne 7 ]] && [[ ${VER} -ne 8 ]]; then
   exit 1
 fi
 
+if grep -q "Red Hat Enterprise Linux release 8" /etc/redhat-release 2>/dev/null ; then
+    export RHEL8=y
+fi
+
 # Check d_type support
 FSTYPE=$(df ${FILESYSTEM} --output=fstype | grep -v Type)
 

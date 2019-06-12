@@ -79,9 +79,6 @@ patch_ep_host_etcd "$CLUSTER_DOMAIN"
 echo "Master nodes up, you can ssh to the following IPs with core@<IP>"
 sudo virsh net-dhcp-leases baremetal
 
-# disable NoSchedule taints for masters until we have workers deployed
-oc adm taint nodes -l node-role.kubernetes.io/master node-role.kubernetes.io/master:NoSchedule-
-
 ./add-machine-ips.sh
 
 # Bounce the machine approver to get it to notice the changes.

@@ -36,7 +36,8 @@ source $CONFIG
 #
 # See https://origin-release.svc.ci.openshift.org/ for release details
 #
-export OPENSHIFT_RELEASE_IMAGE="${OPENSHIFT_RELEASE_IMAGE:-registry.svc.ci.openshift.org/ocp/release:4.2}"
+export OPENSHIFT_RELEASE_LATEST=${OPENSHIFT_RELEASE_LATEST:-$(curl -q https://openshift-release.svc.ci.openshift.org/api/v1/releasestream/4.3.0-0.ci/latest | jq -r '.pullSpec')}
+export OPENSHIFT_RELEASE_IMAGE="${OPENSHIFT_RELEASE_IMAGE:-$OPENSHIFT_RELEASE_LATEST}"
 export OPENSHIFT_INSTALL_PATH="$GOPATH/src/github.com/openshift/installer"
 
 if env | grep -q "_LOCAL_IMAGE=" ; then

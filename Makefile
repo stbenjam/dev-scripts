@@ -1,7 +1,12 @@
 .PHONY: default all requirements configure ironic ocp_run register_hosts clean ocp_cleanup ironic_cleanup host_cleanup bell csr_hack
-default: requirements configure build_installer ironic ocp_run register_hosts csr_hack bell
+default: wrapper
+all: requirements configure build_installer ironic ocp_run register_hosts csr_hack bell
 
-all: default
+# Wrapper is an enhancement that sources common.sh, and calls `make all`. This ensures
+# variables that require external access or derivation are only done once. A small optimization
+# that prevents us from hitting the openshift API multiple times, for example.
+wrapper:
+	./wrapper.sh
 
 redeploy: ocp_cleanup ironic_cleanup build_installer ironic ocp_run register_hosts csr_hack bell
 

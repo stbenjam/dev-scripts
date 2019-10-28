@@ -1,7 +1,7 @@
 #!/bin/bash
 
+[[ ":$PATH:" != *":/usr/local/go/bin:"* ]] && export PATH=$PATH:/usr/local/go/bin
 eval "$(go env)"
-
 
 # Ensure if a go program crashes we get a coredump
 #

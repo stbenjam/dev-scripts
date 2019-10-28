@@ -9,6 +9,17 @@ if grep -q "Red Hat Enterprise Linux release 8" /etc/redhat-release 2>/dev/null 
     RHEL8="True"
 fi
 
+# Install go1.12
+if [ ! -d /usr/local/go ]
+then
+  GO_ARCHIVE=go1.12.12.linux-amd64.tar.gz
+  sudo yum remove -y go # Remove any old versions installed
+  wget https://dl.google.com/go/$GO_ARCHIVE
+  sudo tar -C /usr/local -xvf $GO_ARCHIVE
+  grep -q "/usr/local/go" ~/.profile || echo export PATH=\$PATH:/usr/local/go/bin >> ~/.profile
+  rm -f $GO_ARCHIVE
+fi
+
 sudo yum install -y libselinux-utils
 if selinuxenabled ; then
     # FIXME ocp-doit required this so leave permissive for now

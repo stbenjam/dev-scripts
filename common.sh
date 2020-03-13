@@ -122,6 +122,9 @@ if [[ -z "$OPENSHIFT_CI" ]]; then
   export OPENSHIFT_VERSION=${OPENSHIFT_VERSION:-$(echo $OPENSHIFT_RELEASE_IMAGE | sed "s/.*:\([[:digit:]]\.[[:digit:]]\).*/\1/")}
 fi
 
+# Whether or not to extract `oc` and `openshift-install` binaries
+export EXTRACT_BINARIES=${EXTRACT_BINARIES:-True}
+
 # Switch Container Images to upstream, Installer defaults these to the openshift version
 if [ "${UPSTREAM_IRONIC:-false}" != "false" ] ; then
     export IRONIC_LOCAL_IMAGE=${IRONIC_LOCAL_IMAGE:-"quay.io/metal3-io/ironic:master"}

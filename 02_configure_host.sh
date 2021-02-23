@@ -54,6 +54,17 @@ if [[ ! -z "${MIRROR_IMAGES}" || $(env | grep "_LOCAL_IMAGE=")  || ! -z "${ENABL
     setup_local_registry
 fi
 
+if [[ ! -z "${SQUID_PROXY}" ]]; then
+  sudo podman ps | grep -w "squid$" && sudo podman kill squid
+  sudo podman ps -a | grep -w "squid$" && sudo podman rm squid -f
+
+  sudo podman run -d --rm \
+     --net host \
+     --volume $PWD/squid.conf:/etc/squid/squid.conf \
+     --name squid \
+     sameersbn/squid:latest
+fi
+
 ansible-playbook \
     -e @vm_setup_vars.yml \
     -e "ironic_prefix=${CLUSTER_NAME}_" \

@@ -64,3 +64,7 @@ done
 if [ -d assets/generated ]; then
   rm -rf assets/generated
 fi
+
+# Remove squid container
+sudo podman ps | grep -w "squid$" && sudo podman kill squid || true
+sudo podman ps -a | grep -w "squid$" && sudo podman rm squid -f || true
